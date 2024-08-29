@@ -8,10 +8,8 @@ import os
 
 app = Flask(__name__)
 
-# Setup logging
 logging.basicConfig(level=logging.INFO, format=' %(levelname)s - %(message)s')
 
-# Base URL of your site
 BASE_URL = 'https://my.kingseducation.com'
 
 
