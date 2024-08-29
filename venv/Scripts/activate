@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\SeanKing\local_dev\smarthub_pagetest_crawler\venv"
+VIRTUAL_ENV="C:\Users\SeanKing\local_dev\temp-gh-test\flask_url_checker\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

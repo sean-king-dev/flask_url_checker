@@ -14,7 +14,7 @@ Flask app to crawl site and check for broken links
 
 > venv\Scripts\activate
 
-> pip install requirements.txt
+> pip install -r requirements.txt
 
 > For browser app
 > python app.py
@@ -33,7 +33,7 @@ Flask app to crawl site and check for broken links
 
 > source venv\bin\activate
 
-> pip install requirements.txt
+> pip install -r requirements.txt
 
 > For browser app
 > python app.py
