@@ -43,7 +43,7 @@ def get_all_links(base_url):
         except requests.RequestException as e:
             logging.error(f"Error accessing {url}: {e}")
         
-        time.sleep(1)  # Be polite and avoid overwhelming the server
+        time.sleep(1)  # avoids overwhelming the server
     
     logging.info(f"Found {len(links)} links.")
     return links
