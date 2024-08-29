@@ -1,19 +1,14 @@
-from flask import Flask, request, render_template, send_file
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import time
 import logging
-import os
-
-app = Flask(__name__)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format=' %(levelname)s - %(message)s')
 
 # Base URL of your site
 BASE_URL = 'https://my.kingseducation.com'
-
 
 def get_all_links(base_url):
     """Crawl the site and return a list of all internal links."""
@@ -28,7 +23,7 @@ def get_all_links(base_url):
 
         visited.add(url)
         try:
-            logging.info(f"Visiting: {url}")
+            logging.info(f"Visiting: {url}")  # Debug: Print URL being visited
             response = requests.get(url)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
@@ -41,34 +36,39 @@ def get_all_links(base_url):
                             to_visit.append(absolute_url)
                         links.add(absolute_url)
             else:
-                logging.warning(f"Failed to retrieve {url}: HTTP {response.status_code}")
+                logging.warning(f"Failed to retrieve {url}: HTTP {response.status_code}")  # Debug: HTTP Error
         except requests.RequestException as e:
             logging.error(f"Error accessing {url}: {e}")
         
-        time.sleep(1)  # Be polite and avoid overwhelming the server
+        # Be polite and avoid overwhelming the server
+        time.sleep(1)
     
-    logging.info(f"Found {len(links)} links.")
+    logging.info(f"Found {len(links)} links.")  # Debug: Print number of links found
     return links
-
 
 def check_links(links):
     """Check each link for HTTP errors and return lists of accessible and broken links."""
     accessible_links = []
     broken_links = []
-    server_errors = []
+    server_errors = []  # List specifically for 500-series errors
 
     for link in links:
         try:
             response = requests.get(link)
             if response.status_code >= 500:
+                # Specifically handle 500-series server errors
                 server_errors.append(f"Server Error {response.status_code} at {link}")
             elif response.status_code >= 400:
+                # Handle 400-series client errors
                 broken_links.append(f"Client Error {response.status_code} at {link}")
             else:
+                # Consider links with status code less than 400 as accessible
                 accessible_links.append(link)
         except requests.RequestException as e:
+            # Handle exceptions related to network issues or invalid requests
             broken_links.append(f"Error accessing {link}: {e}")
     
+    # Log the number of server errors for debugging
     if server_errors:
         logging.error(f"Found {len(server_errors)} server errors.")
         for error in server_errors:
@@ -76,48 +76,28 @@ def check_links(links):
     
     return accessible_links, broken_links, server_errors
 
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/check-links', methods=['POST'])
-def check_links_route():
-    url = request.form['url']
-    links = get_all_links(url)
-    accessible_links, broken_links, server_errors = check_links(links)
-    
-    write_to_file('accessible_links.txt', accessible_links)
-    write_to_file('broken_links.txt', broken_links)
-    write_to_file('server_errors.txt', server_errors)
-    
-    accessible_count = len(accessible_links)
-    broken_count = len(broken_links)
-    server_error_count = len(server_errors)
-    
-    return render_template('results.html',
-                           accessible_count=accessible_count,
-                           broken_count=broken_count,
-                           server_error_count=server_error_count)
-
-
-@app.route('/download/<filename>')
-def download_file(filename):
-    if os.path.exists(filename):
-        return send_file(filename, as_attachment=True)
-    else:
-        logging.error(f"File not found: {filename}")
-        return "File not found", 404
-
-
 def write_to_file(filename, links):
     """Write links to a text file."""
     with open(filename, 'w') as file:
         for link in links:
             file.write(f"{link}\n")
 
-
 if __name__ == '__main__':
-    if not os.path.exists('templates'):
-        os.makedirs('templates')
-    app.run(debug=True)
+    links = get_all_links(BASE_URL)
+    if links:
+        accessible_links, broken_links, server_errors = check_links(links)
+        
+        # Write accessible links to file
+        write_to_file('accessible_links.txt', accessible_links)
+        
+        # Write broken links to file
+        write_to_file('broken_links.txt', broken_links)
+        
+        # Write server errors to file
+        write_to_file('server_errors.txt', server_errors)
+        
+        logging.info(f"Accessible links written to 'accessible_links.txt'")
+        logging.info(f"Broken links written to 'broken_links.txt'")
+        logging.info(f"Server errors written to 'server_errors.txt'")
+    else:
+        logging.info("No links found.")
