@@ -16,10 +16,7 @@ Flask app to crawl site and check for broken links
 
 > pip install -r requirements.txt
 
-> For browser app
-> python app.py
-
-> For terminal
+> Run programme (opens in browser)
 > python crawler.py
 
 
@@ -35,10 +32,7 @@ Flask app to crawl site and check for broken links
 
 > pip install -r requirements.txt
 
-> For browser app
-> python app.py
-
-> For terminal
-> python crawler.py
+> Run programme (opens in browser)
+> python crawler_log.py
 
 
