@@ -73,25 +73,6 @@ def check_links_route():
 
     return render_template('results.html')
 
-@app.route('/check-links', methods=['POST'])
-def output_accessible_results():
-    with open("accessible_links.txt", "r") as file:
-        accessible_links = file.readlines()
-    
-    return accessible_links;
-
-def output_broken_results():
-    with open("broken_links.txt", "r") as file:
-        broken_links = file.readlines()
-    
-    return broken_links;
-
-def output_server_results():
-    with open("server_error.txt", "r") as file:
-        server_errors = file.readlines()
-    
-    return server_errors;
-
 @app.route('/download/<filename>')
 def download_file(filename):
     return send_file(filename, as_attachment=True)
